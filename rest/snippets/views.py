@@ -12,6 +12,8 @@ from rest_framework import generics
 from django.contrib.auth.models import User
 from rest_framework import permissions
 from snippets.permissions import IsOwnerOrReadOnly
+from .custom_functions import get_json
+from django.http import JsonResponse
 
 
 
@@ -114,10 +116,20 @@ from snippets.permissions import IsOwnerOrReadOnly
 
 
 
-class SnippetList(generics.ListAPIView):
+class SnippetList(generics.ListCreateAPIView):
 	permissions_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
 	queryset = Snippet.objects.all()
 	serializer_class = SnippetSerializer
+
+	def list(self, request):
+		try:
+			snippets = self.get_queryset()
+			serializer = SnippetSerializer(snippets, many= True)
+			json_object = get_json(data=serializer.data, error=None)
+			return JsonResponse(json_object, status=200)
+		except Snippet.DoesNotExist:
+			json_object	= get_json(data=None, error = "Query does not exist")
+			return JsonResponse(json_object, status=404)
 
 	def perform_create(self, serializer):
 		serializer.save(owner=self.request.user)
