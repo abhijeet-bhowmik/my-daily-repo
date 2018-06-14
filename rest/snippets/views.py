@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Snippet
-from .serializers import SnippetSerializer, UserSerializer
+from .serializers import SnippetSerializer
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
@@ -10,6 +10,7 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from .custom_functions import get_json
 from django.http import HttpResponse, JsonResponse 
+from django.db import Error
 
 
 
@@ -75,10 +76,22 @@ class SnippetList(APIView):
 
 
 	def get(self,request, format=None):
-		snippets = Snippet.objects.all()
-		serializer = SnippetSerializer(snippets, many=True)
-		json , e = get_json(serializer.data)
+		try:
+			
+			snippets = Snippet.objects.get(id=10)
+			serializer = SnippetSerializer(snippets, many=True)
+			json_objects = get_json(data=None, error="server error")
+			return JsonResponse(json_objects, status=200)
+		except Snippet.DoesNotExist as e:
+			json_objects = get_json(data=None, error="Query Does not Exist")
+			return JsonResponse(json_objects, status=404)
+		
+
+
+
+
 		return JsonResponse(json) if not e else HttpResponse(status = 404)
+
 
 	def post(self,request, format=None):
 		data = JSONParser().parse(request.body)
@@ -93,7 +106,7 @@ class SnippetDetail(APIView):
     """
     Retrieve, update or delete a snippet instance.
     """
-	def get_object(self, pk):
+    def get_object(self, pk):
        	try:
             return Snippet.objects.get(pk=pk)
         except Snippet.DoesNotExist:
@@ -118,11 +131,11 @@ class SnippetDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserList(generics.ListAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
+# class UserList(generics.ListAPIView):
+# 	queryset = User.objects.all()
+# 	serializer_class = UserSerializer
 
-class UserDetail(generics.RetrieveAPIView):
+# class UserDetail(generics.RetrieveAPIView):
 
 
 
