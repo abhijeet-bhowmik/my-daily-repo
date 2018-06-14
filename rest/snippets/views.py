@@ -80,7 +80,7 @@ class SnippetList(APIView):
 			
 			snippets = Snippet.objects.all()
 			serializer = SnippetSerializer(snippets, many=True)
-			json_objects = get_json(data=None, error="some error")
+			json_objects = get_json(data=serializer.data, error=None)
 			return JsonResponse(json_objects, status=200)
 		except Snippet.DoesNotExist:
 			json_objects = get_json(data=None, error="Query Does not Exist")
