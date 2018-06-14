@@ -8,6 +8,8 @@ from rest_framework.decorators import api_view
 from django.utils.six import BytesIO
 from rest_framework import status
 from rest_framework.views import APIView
+from .custom_functions import get_json
+from django.http import HttpResponse, JsonResponse 
 
 
 
@@ -66,10 +68,17 @@ from rest_framework.views import APIView
 
 class SnippetList(APIView):
 
+	
+
+
+
+
+
 	def get(self,request, format=None):
 		snippets = Snippet.objects.all()
 		serializer = SnippetSerializer(snippets, many=True)
-		return Response(serializer.data)
+		json , e = get_json(serializer.data)
+		return JsonResponse(json) if not e else HttpResponse(status = 404)
 
 	def post(self,request, format=None):
 		data = JSONParser().parse(request.body)
