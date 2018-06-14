@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Snippet
 from .serializers import SnippetSerializer
 from rest_framework.response import Response
@@ -7,6 +7,8 @@ from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from django.utils.six import BytesIO
 from rest_framework import status
+from rest_framework import APIView
+
 
 
 # Create your views here.
@@ -19,7 +21,7 @@ from rest_framework import status
 # 		return Response(serializer.data)
 
 # 	elif request.method == 'POST':
-# 		data = JSONParser().parse(request)
+# 		data = JSONParser().parse(request.body)
 # 		serializer = SnippetSerializer(data=data)
 # 		if serializer.is_valid():
 # 			serializer.save()
@@ -60,6 +62,17 @@ from rest_framework import status
 
 
 ###########.   Will create view classes
+
+
+class SnippetList(APIView):
+
+	def get(request):
+		snippets = Snippet.objects.all()
+		serializer = SnippetSerializer(snippets, many=True)
+		return Response(serializer.data)
+
+	def post(request):
+
 
 
 
