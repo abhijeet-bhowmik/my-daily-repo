@@ -54,3 +54,15 @@ from rest_framework import status
 # 	elif request.method == 'DELETE':
 # 		snippet.delete()
 # 		return Response(status=HTTP_204_NO_CONTENT)
+
+
+
+
+
+###########.   Will create view classes
+
+
+
+
+
+

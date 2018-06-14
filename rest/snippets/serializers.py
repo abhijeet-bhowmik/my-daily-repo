@@ -8,7 +8,7 @@ from snippets.models import Snippet, LANGUAGE_CHOICES, STYLE_CHOICES
 # 	code = serializers.CharField(style={'base_template':'textarea.html'})
 # 	lineos = serializers.BooleanField(required=False)
 # 	language = serializers.ChoiceField(choices=LANGUAGE_CHOICES, default='python')
-# 	style = serializers.ChoiceField(choices=STYLE_CHOICES, defauclt='friendly')
+# 	style = serializers.ChoiceField(choices=STYLE_CHOICES, default='friendly')
 
 
 
