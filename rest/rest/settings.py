@@ -79,9 +79,9 @@ WSGI_APPLICATION = 'rest.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'EXPERIMENT',
-        'USER' : 'EXPERIMENTUSER',
-        'PASSWORD' : 'EXPERIMENT123',
+        'NAME': 'Test',
+        'USER' : 'APIServer',
+        'PASSWORD' : 'root',
         'HOST' : 'localhost',
         'PORT' : '',
     }
