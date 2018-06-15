@@ -14,6 +14,10 @@ from rest_framework import permissions
 from snippets.permissions import IsOwnerOrReadOnly
 from .custom_functions import get_json
 from django.http import JsonResponse
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
+from django.utils.six import BytesIO
 
 
 
@@ -114,6 +118,20 @@ from django.http import JsonResponse
 #         snippet.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
 
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'users': reverse('user-list', request=request, format=format),
+        'snippets': reverse('snippet-list', request=request, format=format)
+    })
+
+
+
+
+
+
+
+
 
 
 class SnippetList(generics.ListCreateAPIView):
@@ -123,16 +141,28 @@ class SnippetList(generics.ListCreateAPIView):
 
 	def list(self, request):
 		try:
-			snippets = self.get_queryset()
+			snippets = Snippet.objects.all()
 			serializer = SnippetSerializer(snippets, many= True)
-			json_object = get_json(data=serializer.data, error=None)
+			json_object = get_json(data=serializer.data)
 			return JsonResponse(json_object, status=200)
-		except Snippet.DoesNotExist:
-			json_object	= get_json(data=None, error = "Query does not exist")
+		except Snippet.DoesNotExist as e:
+			json_object	= get_json(error = str(e))
 			return JsonResponse(json_object, status=404)
+		# except TypeError as e:
+		# 	json_object = get_json(error = str(e)+" : Internal Server Error")
+		# 	return JsonResponse(json_object, status=404)
 
-	def perform_create(self, serializer):
-		serializer.save(owner=self.request.user)
+	def post(self, request):
+		serializer = SnippetSerializer(data=request.data)
+		if serializer.is_valid():
+			try:
+				serializer.save(owner=request.user)
+				return JsonResponse(get_json(data=serializer.data, single=True), status=200)
+			except ValueError as e:
+				return JsonResponse(get_json(error=str(e)), status=400)
+		else:
+			return jsonResponse(get_json(error=serializer.errors), status=404)
+
 
 class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Snippet.objects.all()
@@ -142,6 +172,15 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
 class UserList(generics.ListAPIView):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
+	def list(self, request):
+		try:
+			users = self.get_queryset()
+			serializer = UserSerializer(users, many= True)
+			json_object = get_json(data=serializer.data, error=None)
+			return JsonResponse(json_object, status=200)
+		except Snippet.DoesNotExist:
+			json_object	= get_json(data=None, error = "Query does not exist")
+			return JsonResponse(json_object, status=404)
 
 class UserDetail(generics.RetrieveAPIView):
 	queryset = User.objects.all()

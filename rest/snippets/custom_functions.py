@@ -1,7 +1,17 @@
 
 
 
-def get_json(data, error):
+def get_json(error = None, data=None, single=False):
+	
+	if single:
+		json_response = {'data' : data,
+						 'message' : 'Write Successful',
+						 'error' : None,
+						 'status' : 200
+						 }
+		return json_response
+
+
 	if data:
 		json_object_list = []
 		for snippet_dictionary in data:
