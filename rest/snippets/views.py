@@ -175,7 +175,7 @@ class UserList(generics.ListAPIView):
 	def list(self, request):
 		try:
 			users = self.get_queryset()
-			serializer = UserSerializer(users, many= True)
+			serializer = UserSerializer(users, many= True, context={'request' : request})
 			json_object = get_json(data=serializer.data, error=None)
 			return JsonResponse(json_object, status=200)
 		except Snippet.DoesNotExist:
