@@ -18,7 +18,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from django.utils.six import BytesIO
-
+from rest_framework import viewsets
 
 
 # Create your views here.
@@ -134,58 +134,70 @@ def api_root(request, format=None):
 
 
 
-class SnippetList(generics.ListCreateAPIView):
-	permissions_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
-	queryset = Snippet.objects.all()
-	serializer_class = SnippetSerializer
+# class SnippetList(generics.ListCreateAPIView):
+# 	permissions_classes = (permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly)
+# 	queryset = Snippet.objects.all()
+# 	serializer_class = SnippetSerializer
 
-	def list(self, request):
-		try:
-			snippets = Snippet.objects.all()
-			serializer = SnippetSerializer(snippets, many= True)
-			json_object = get_json(data=serializer.data)
-			return JsonResponse(json_object, status=200)
-		except Snippet.DoesNotExist as e:
-			json_object	= get_json(error = str(e))
-			return JsonResponse(json_object, status=404)
-		# except TypeError as e:
-		# 	json_object = get_json(error = str(e)+" : Internal Server Error")
-		# 	return JsonResponse(json_object, status=404)
+# 	def list(self, request):
+# 		try:
+# 			snippets = Snippet.objects.all()
+# 			serializer = SnippetSerializer(snippets, many= True)
+# 			json_object = get_json(data=serializer.data)
+# 			return JsonResponse(json_object, status=200)
+# 		except Snippet.DoesNotExist as e:
+# 			json_object	= get_json(error = str(e))
+# 			return JsonResponse(json_object, status=404)
+# 		# except TypeError as e:
+# 		# 	json_object = get_json(error = str(e)+" : Internal Server Error")
+# 		# 	return JsonResponse(json_object, status=404)
 
-	def post(self, request):
-		serializer = SnippetSerializer(data=request.data)
-		if serializer.is_valid():
-			try:
-				serializer.save(owner=request.user)
-				return JsonResponse(get_json(data=serializer.data, single=True), status=200)
-			except ValueError as e:
-				return JsonResponse(get_json(error=str(e)), status=400)
-		else:
-			return jsonResponse(get_json(error=serializer.errors), status=404)
-
-
-class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
-	queryset = Snippet.objects.all()
-	serializer_class = SnippetSerializer
+# 	def post(self, request):
+# 		serializer = SnippetSerializer(data=request.data)
+# 		if serializer.is_valid():
+# 			try:
+# 				serializer.save(owner=request.user)
+# 				return JsonResponse(get_json(data=serializer.data, single=True), status=200)
+# 			except ValueError as e:
+# 				return JsonResponse(get_json(error=str(e)), status=400)
+# 		else:
+# 			return jsonResponse(get_json(error=serializer.errors), status=404)
 
 
-class UserList(generics.ListAPIView):
+# class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
+# 	queryset = Snippet.objects.all()
+# 	serializer_class = SnippetSerializer
+
+
+# class UserList(generics.ListAPIView):
+# 	queryset = User.objects.all()
+# 	serializer_class = UserSerializer
+# 	def list(self, request):
+# 		try:
+# 			users = self.get_queryset()
+# 			serializer = UserSerializer(users, many= True, context={'request' : request})
+# 			json_object = get_json(data=serializer.data, error=None)
+# 			return JsonResponse(json_object, status=200)
+# 		except Snippet.DoesNotExist:
+# 			json_object	= get_json(data=None, error = "Query does not exist")
+# 			return JsonResponse(json_object, status=404)
+
+# class UserDetail(generics.RetrieveAPIView):
+# 	queryset = User.objects.all()
+# 	serializer_class = UserSerializer
+
+
+
+class UserViewSets(viewsets.ReadOnlyModelViewSet):
 	queryset = User.objects.all()
 	serializer_class = UserSerializer
-	def list(self, request):
-		try:
-			users = self.get_queryset()
-			serializer = UserSerializer(users, many= True, context={'request' : request})
-			json_object = get_json(data=serializer.data, error=None)
-			return JsonResponse(json_object, status=200)
-		except Snippet.DoesNotExist:
-			json_object	= get_json(data=None, error = "Query does not exist")
-			return JsonResponse(json_object, status=404)
 
-class UserDetail(generics.RetrieveAPIView):
-	queryset = User.objects.all()
-	serializer_class = UserSerializer
 
+
+class SnippetViewSets(viewsets.ModelViewSet):
+	queryset = Snippet.objects.all()
+	serializer_class = SnippetSerializer
+	permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
 
 
