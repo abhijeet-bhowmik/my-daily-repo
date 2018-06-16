@@ -19,7 +19,7 @@ def get_json(error = None, data=None, single=False):
 			for k,v in snippet_dictionary.items():
 				object_dictionary[k] = v
 			json_object_list.append(object_dictionary)
-		print(json_object_list)
+		
 		json_response = {'data': json_object_list,
 						 'success' : True,
 						 'error' : None,

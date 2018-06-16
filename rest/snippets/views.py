@@ -148,9 +148,11 @@ class SnippetList(generics.ListCreateAPIView):
 		except Snippet.DoesNotExist as e:
 			json_object	= get_json(error = str(e))
 			return JsonResponse(json_object, status=404)
-		# except TypeError as e:
-		# 	json_object = get_json(error = str(e)+" : Internal Server Error")
-		# 	return JsonResponse(json_object, status=404)
+		except TypeError as e:
+			json_object = get_json(error = str(e)+" : Internal Server Error")
+			return JsonResponse(json_object, status=404)
+		except:
+			return JsonResponse(None, status=500)
 
 	def post(self, request):
 		serializer = SnippetSerializer(data=request.data)
